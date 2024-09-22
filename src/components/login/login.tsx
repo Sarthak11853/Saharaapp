@@ -130,7 +130,7 @@ useEffect(() => {
 
         <div onClick={handleOTP} className="flex justify-center mb-8">
           <button className="w-40 h-40 rounded-full bg-gradient-to-br from-red-400 to-red-600 flex items-center justify-center shadow-lg">
-            <span  className="text-white text-4xl font-bold">{isSending ? (isSent ? "Sent" : "Sending") : "" }</span>
+            <span  className="text-white text-4xl font-bold">{isSending ? (isSent ? "Sent" : "Sending") : "SOS" }</span>
           </button>
         </div>
 
