@@ -23,6 +23,8 @@ export default function SaharaApp() {
     { name: 'Ayushi', image: 'https://i.pinimg.com/564x/6c/77/2d/6c772dcd658fc559b6c958270b812a1d.jpg' },
   ];
   const [location, setLocation] = useState<Location>({ latitude: null, longitude: null })
+  const [isSending, setIsSending] = useState(false);
+  const[isSent,setIsSent]=useState(false);
 
 
       
@@ -59,19 +61,24 @@ useEffect(() => {
 
   const handleOTP=async()=>{
     try {
+        setIsSending(true);
         const res = await fetch("https://sahaara-app.vercel.app/api/otp", {
             method: "POST",
             body: JSON.stringify({location:location})
         })
         if(res.status === 200){
             // setShowOTP(true)
+            setIsSent(true)
         }
         else{
             throw new Error("Please fill the details");
+
         }
         
     } catch (error) {
         console.error("OTP fetch error:", error);
+        setIsSending(false);
+        setIsSent(false);
         
     }
     // window.location.href = "https://www.figma.com/proto/VZP39Apl2495E8tnosXhVT/Untitled?node-id=4-828&node-type=canvas&t=TRZEuNX8JlSmAKgm-0&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=4%3A828"
@@ -123,7 +130,7 @@ useEffect(() => {
 
         <div onClick={handleOTP} className="flex justify-center mb-8">
           <button className="w-40 h-40 rounded-full bg-gradient-to-br from-red-400 to-red-600 flex items-center justify-center shadow-lg">
-            <span className="text-white text-4xl font-bold">SOS</span>
+            <span  className="text-white text-4xl font-bold">{isSending ? (isSent ? "Sent" : "Sending") : "" }</span>
           </button>
         </div>
 
