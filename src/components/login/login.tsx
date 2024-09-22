@@ -59,7 +59,7 @@ useEffect(() => {
 
   const handleOTP=async()=>{
     try {
-        const res = await fetch("http://localhost:3000/api/otp", {
+        const res = await fetch("https://sahaara-app.vercel.app/api/otp", {
             method: "POST",
             body: JSON.stringify({location:location})
         })
