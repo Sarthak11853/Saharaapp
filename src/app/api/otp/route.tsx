@@ -1,70 +1,61 @@
 import { Database } from "@/database/db";
 import { NextRequest, NextResponse } from "next/server";
 import twilio from "twilio";
-import Otp from "@/Schema/otp.Schema"
+import Otp from "@/Schema/otp.Schema";
 
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const client = twilio(accountSid, authToken);
 
-export async function POST(req:NextRequest,res:NextResponse) {
-    const {location} = await req.json();
+export async function POST(req: NextRequest) {
+    const { location } = await req.json();
+
+    // Set CORS headers
+    const headers = {
+        "Access-Control-Allow-Origin": "*", // Allow all origins (you can restrict to specific domain)
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    };
+
     try {
-        var otp = Math.floor(100000 + Math.random()*900000);
-        
+        var otp = Math.floor(100000 + Math.random() * 900000);
+
+        // Database connection and OTP creation
         await Database();
         await Otp.create({
-            Name:"name",
-            Phone:9521688016,
-            Otp:otp,
-            OtpExpire:new Date(Date.now()+300000)
-        })
-        
+            Name: "name",
+            Phone: 9521688016,
+            Otp: otp,
+            OtpExpire: new Date(Date.now() + 300000),
+        });
+
         const phoneNumber = `+919521688016`;
-        console.log(location)
-        let helpMessage=`Some One in your area need your Sahaara https://www.google.com/maps?q=${location.latitude},${location.longitude}`
-            
+        console.log(location);
+        let helpMessage = `Some One in your area need your Sahaara https://www.google.com/maps?q=${location.latitude},${location.longitude}`;
+
+        // Sending SMS using Twilio
         const message = await client.messages.create({
             body: helpMessage,
-            from: "+13343452295",
+            from: process.env.TWILIO_PHONE_NUMBER,
             to: phoneNumber,
         });
-        // console.log("OTP:",otp);
+
         console.log("Help sent successfully", message.sid);
-        await Otp.deleteOne({Phone:9521688016});
+        await Otp.deleteOne({ Phone: 9521688016 });
 
-
-        // await Database();
-        // await Otp.create({
-        //     Name:"roshan",
-        //     Phone:7850823847,
-        //     Otp:otp,
-        //     OtpExpire:new Date(Date.now()+300000)
-        // })
-        
-        // const phoneNumber2 = `+917850823847`;
-        // console.log(location)
-        // let helpMessage2=`Some One in your area need your Sahaara https://www.google.com/maps?q=${location.latitude},${location.longitude}`
-            
-        // const message2 = await client.messages.create({
-        //     body: helpMessage2,
-        //     from: "+",
-        //     to: phoneNumber2,
-        // });
-        // // console.log("OTP:",otp);
-        // console.log("Help sent successfully", message2.sid);
-        // await Otp.deleteOne({Phone:9521688016});
-
-
-        return NextResponse.json({ status: 200, message: "Help sent successfully" })
-        
+        return new NextResponse(JSON.stringify({ status: 200, message: "Help sent successfully" }), { headers });
     } catch (error) {
         console.error("Help fetch error:", error);
-        return NextResponse.json({ status: 500, message: "Help fetch error" })
-
-        
+        return new NextResponse(JSON.stringify({ status: 500, message: "Help fetch error" }), { headers });
     }
+}
 
-    
-    
+// Handle OPTIONS method (for preflight CORS requests)
+export async function OPTIONS() {
+    const headers = {
+        "Access-Control-Allow-Origin": "*", // Adjust this to your domain if needed
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    };
+    return new NextResponse(null, { headers });
 }
